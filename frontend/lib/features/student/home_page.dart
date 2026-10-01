@@ -1,0 +1,217 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:pfa/core/models/student.dart';
+import 'package:pfa/core/theme/app_colors.dart';
+import 'package:pfa/features/shared/card_widgets.dart';
+import 'package:pfa/features/student/documents/documents_page.dart';
+import 'package:pfa/features/student/documents/request_document_page.dart';
+import 'package:pfa/core/providers/internship_provider.dart';
+import 'package:pfa/core/providers/user_data_provider.dart';
+
+class StudentHomePage extends ConsumerStatefulWidget {
+  const StudentHomePage({super.key});
+
+  @override
+  ConsumerState<StudentHomePage> createState() => _StudentHomePageState();
+}
+
+class _StudentHomePageState extends ConsumerState<StudentHomePage> {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final userAsync = ref.watch(userDataProvider);
+    final internshipsAsync = ref.watch(internshipsProvider);
+
+    return Scaffold(
+      backgroundColor: theme.scaffoldBackgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            spacing: 24,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(),
+              userAsync.when(
+                data: (user) {
+                  if (user == null || user is! Student) {
+                    return const SizedBox(); // Fallback if no user
+                  }
+                  return welcomeWidget(context, ref, user);
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => Text('Error loading profile: $error'),
+              ),
+
+              // Internships Card
+              internshipsAsync.when(
+                data: (internships) {
+                  if (internships.isEmpty) {
+                    return intershipCard(
+                      viewType: InternshipCardViewType.student,
+                      context,
+                      internship: null,
+                    );
+                  }
+                  return intershipCard(
+                    viewType: InternshipCardViewType.student,
+                    context,
+                    internship:
+                        internships.first, // Show the most recent one or list
+                  );
+                },
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (error, _) => Text('Error loading internships: $error'),
+              ),
+
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: .start,
+                  children: [
+                    Text(
+                      "Actions Rapides",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w700,
+                        color: theme.textTheme.titleLarge!.color,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Expanded(
+                      child: Container(
+                        clipBehavior: Clip.antiAlias,
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(12),
+                            topRight: Radius.circular(12),
+                          ),
+                        ),
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          scrollDirection: Axis.vertical,
+                          child: Column(
+                            spacing: 12,
+                            crossAxisAlignment: .start,
+                            children: [
+                              _quickActionCard(
+                                context,
+                                Icons.download,
+                                'Documents officiels',
+                                'Télécharger vos documents de stage',
+                                () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const DocumentsPage(),
+                                  ),
+                                ),
+                              ),
+                              _quickActionCard(
+                                context,
+                                Icons.document_scanner,
+                                'Demander des Documents',
+                                'Demander des documents de stage',
+                                () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RequestDocumentPage(),
+                                  ),
+                                ),
+                              ),
+                              _quickActionCard(
+                                context,
+                                Icons.upload_file,
+                                'Rapport de Stage',
+                                'Envoyer votre rapport de stage',
+                                () {},
+                              ),
+                              _quickActionCard(
+                                context,
+                                Icons.access_time_outlined,
+                                'Journal de Stage',
+                                'Consulter votre journal de stage',
+                                () {},
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+Material _quickActionCard(
+  BuildContext context,
+  IconData icon,
+  String title,
+  String subtitle,
+  VoidCallback onTap,
+) {
+  final theme = Theme.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+
+  return Material(
+    color: theme.cardTheme.color,
+    borderRadius: BorderRadius.circular(16),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          width: 2,
+          color: isDark ? AppColors.darkBorder : AppColors.border,
+        ),
+        boxShadow: [
+          if (!isDark)
+            BoxShadow(
+              color: AppColors.shadow,
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+        ],
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: ListTile(
+          leading: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: theme.colorScheme.primary, size: 24),
+          ),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.textTheme.titleMedium?.color,
+            ),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: TextStyle(
+              fontSize: 13,
+              color: theme.textTheme.bodyMedium?.color,
+              height: 1.4,
+            ),
+          ),
+          trailing: Icon(
+            Icons.chevron_right,
+            color: theme.iconTheme.color?.withValues(alpha: 0.5),
+          ),
+        ),
+      ),
+    ),
+  );
+}

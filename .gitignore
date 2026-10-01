@@ -1,0 +1,109 @@
+# .gitignore for pfa project
+# Combined ignores for frontend, backend, and Python/FastAPI development
+
+# -------------------------
+# Environment / Credentials
+# -------------------------
+# Environment variable files (local variants)
+.env
+.env.local
+.env.*.local
+
+# Backend credentials/config that may contain secrets
+backend/firebase.json
+
+# -------------------------
+# Python / FastAPI
+# -------------------------
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Caches & type-checker artifacts
+.pytest_cache/
+.mypy_cache/
+.pyre/
+.pytype/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.venv-*/
+
+# Packaging / build artifacts
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+# wheelhouse/  # uncomment if you use a local wheelhouse
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+
+# Uvicorn / FastAPI logs or temp files (adjust if you keep logs in repo)
+uvicorn.log
+gunicorn.log
+
+# Misc python-related
+.python-version
+local_settings.py
+
+# -------------------------
+# Frontend
+# -------------------------
+frontend/.vscode/settings.json
+frontend/TODO.md
+
+# App directory at repo root (ignore built app or temporary app folder)
+/app/
+
+# Node / JS dependencies
+node_modules/
+package-lock.json
+yarn.lock
+
+# Frontend build output (also overlaps with Python/build above)
+dist/
+build/
+
+# -------------------------
+# IDE / Editor
+# -------------------------
+# VS Code / JetBrains
+.vscode/
+.idea/
+
+# Swap / temporary files
+*.swp
+*.swo
+*~
+
+# -------------------------
+# OS
+# -------------------------
+.DS_Store
+Thumbs.db
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# -------------------------
+# Optional: Uncomment as needed
+# -------------------------
+# coverage/
+# .venv/ (if your venv is named differently)
+# .cache/
+# secrets/  # if you have a folder for secrets to ignore
